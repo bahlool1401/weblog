@@ -2,8 +2,11 @@ const Blog = require('../model/Blog');
 const {formatDate}=require('../utils/jalali');
 const {get500} = require('./errorController');
 
-const uuid = require("uuid").v4;
-const multer =require('multer');
+const { storage, fileFilter } = require("../utils/multer");
+
+const multer = require("multer");
+const uuid = require('uuid').v4;
+const sharp = require('sharp');
 
 exports.getDashboard = async (req, res) => {
     try {
@@ -60,25 +63,6 @@ exports.createPost = async (req, res) => {
 
 exports.uploadImage = (req, res) => {
     // let fileName = `${uuid()}.jpg`;
-
-    const storage = multer.diskStorage({
-        destination: (req, file, cb) => {
-            cb(null, "./public/uploads/");
-        },
-        filename: (req, file, cb) => {
-            console.log(file);
-            cb(null, `${uuid()}_${file.originalname}`);
-        },
-    });
-
-    const fileFilter = (req, file, cb) => {
-        if (file.mimetype == "image/jpeg") {
-            cb(null, true);/* قبولش کن*/
-        } else {
-            cb("تنها پسوند JPEG پشتیبانی میشود", false);
-        }
-    };
-
     const upload = multer({
         limits: { fileSize: 4000000 },
         dest: "uploads/",
@@ -86,12 +70,23 @@ exports.uploadImage = (req, res) => {
         fileFilter: fileFilter,
     }).single("image");
 
-    upload(req, res, (err) => {
+     upload(req, res, async (err) => {
         if (err) {
-            console.log(err);
             res.send(err);
         } else {
-            res.status(200).send("آپلود عکس موفقیت آمیز بود");
+            if (req.file) {
+                console.log(req.file);
+                const fileName = `${uuid()}_${req.file.originalname}`;
+                await sharp({})
+                    .jpeg({
+                        quality: 40,
+                    })
+                    .toFile(`./public/uploads/${fileName}`)
+                    .catch((err) => console.log(err));
+                res.status(200).send("آپلود عکس موفقیت آمیز بود");
+            } else {
+                res.send("جهت آپلود باید عکسی انتخاب کنید");
+            }
         }
     });
 };
