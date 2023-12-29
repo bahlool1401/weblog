@@ -10,15 +10,28 @@ const shortId = require('shortid');/*✔*/
 const sharp = require('sharp');
 
 exports.getDashboard = async (req, res) => {
+    const page = +req.query.page || 1
+    const postPerPage = 2
     try {
-        const blogs = await Blog.find({ user: req.user.id })
+        const numberOfPost = await Blog.find({
+            user:req.user._id
+        }).countDocuments()
+
+        const blogs = await Blog.find({ user: req.user.id }).skip((page - 1) * postPerPage).limit(postPerPage)
+
         res.render("private/blogs", {
             pageTitle: "داشبورد |  بخش مدیریت",
             path: "/dashboard",
             layout: "./layouts/dashLayout",
             fullname: req.user.fullname,
             blogs,
-            formatDate
+            formatDate,
+            currentPage:page,
+            nextPage:page + 1,
+            previousPage:page - 1,
+            hasNextPage:postPerPage * page < numberOfPost,
+            hasPreviousPage:page>1 ,
+            lastPage:Math.ceil(numberOfPost/postPerPage)
         })
     } catch (err) {
         console.log(err)
