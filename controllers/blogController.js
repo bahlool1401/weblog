@@ -1,5 +1,6 @@
 const Blog = require('../model/Blog');
 const {formatDate} = require('../utils/jalali');
+const {truncate}=require('../utils/helpers');
 
 exports.getIndex = async(req,res)=>{
     try {
@@ -13,7 +14,8 @@ exports.getIndex = async(req,res)=>{
             pageTitle:"وبلاگ",
             path:'/',
             posts,
-            formatDate
+            formatDate,
+            truncate
         })
     } catch (err) {
         console.log(err)
