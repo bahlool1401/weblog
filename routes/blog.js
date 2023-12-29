@@ -1,12 +1,10 @@
 const { Router } = require('express');
 const router = new Router()
-
+const blogController  =require('../controllers/blogController');
 //desc :  index weblog route
-router.get('/', (req, res) => {
-    res.render('index', { 
-        pageTitle: 'اولین وبلاگ بهلول',
-        path:'/'
-     })
-})
+
+
+router.get("/",blogController.getIndex)
+
 
 module.exports = router
