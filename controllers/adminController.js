@@ -154,11 +154,10 @@ exports.uploadImage = (req, res) => {
             if (req.file) {
                 console.log(req.file);
                 const fileName = `${shortId.generate()}_${req.file.originalname}`;
+                console.log("🚀 ~ upload ~ fileName:", fileName)
                 await sharp({})
-                    .jpeg({
-                        quality: 40,
-                    })
-                    .toFile(`./public/uploads/${fileName}`)
+                    .jpeg({quality: 40})
+                    .toFile(`./public/${fileName}`)
                     .catch((err) => console.log(err));
                 res.status(200).send(
                     `http://localhost:3000/uploads/${fileName}`)
@@ -166,5 +165,5 @@ exports.uploadImage = (req, res) => {
                 res.send("جهت آپلود باید عکسی انتخاب کنید");
             }
         }
-    });
+    }); 
 };
