@@ -1,4 +1,5 @@
 const debug =require('debug')("weblog");
+const fileUpload = require('express-fileupload');
 const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');

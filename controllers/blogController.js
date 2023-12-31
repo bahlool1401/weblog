@@ -8,7 +8,7 @@ exports.getIndex = async(req,res)=>{
 
     try {
         const numberOfPosts = await Blog.find({
-            user: req.user._id,
+            status: "public",
         }).countDocuments();
 
         const posts=await Blog.find({
