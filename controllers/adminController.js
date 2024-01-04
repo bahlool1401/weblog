@@ -8,7 +8,7 @@ const multer = require("multer");
 // const uuid = require('uuid').v4;✖
 const shortId = require('shortid');/*✔*/
 const sharp = require('sharp');
-const appRoute = require('app-root-path');
+const appRoot = require("app-root-path")
 
 exports.getDashboard = async (req, res) => {
     const page = +req.query.page || 1
@@ -54,9 +54,23 @@ exports.getAddPost = (req, res) => {
 exports.createPost = async (req, res) => {
     const errorArr = [];
 
+    const thumbnail = req.files? req.files.thumbnail:{}
+    const fileName = `${shortId.generate()}_${thumbnail.name}`
+    const uploadPath = `${appRoot}/public/uploads/thumbnails/${fileName}`
+    console.log("thumbnail :", thumbnail)
+
+
     try {
+        //add thumnail to req.body
+        req.body = {...req.body,thumbnail}
+        console.log(req.body)
+
         await Blog.postValidation(req.body); /* اول اعتبار سنجی میکنه که از إBlog.js آمده اند. */
-        await Blog.create({ ...req.body, user: req.user.id });
+
+       // minimize file size
+       await sharp(thumbnail.data).jpeg({quality:60}).toFile(uploadPath).catch((err)=>console.log(err))
+
+        await Blog.create({ ...req.body, user: req.user.id, thumbnail:fileName });
         res.redirect("/dashboard");
     } catch (err) {
         console.log(err);
