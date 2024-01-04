@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const morgan =require('morgan');
 const app =express()
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
 const flash = require('connect-flash');
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
@@ -13,8 +13,11 @@ const MongoStore = require('connect-mongo')(session);
 
 
 //* body parser***
-// app.use(express.urlencoded({extended:false}))
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(express.urlencoded({ extended: false }))
+app.use(express.json())
+
+//*fileUpload MiddleWare
+app.use(fileUpload());
 
 //*session section
 app.use(session({
@@ -33,11 +36,14 @@ app.use(passport.session())
 // flash`
 app.use(flash())
 
+
 // const connectDB= require('./config/db');
 const connectDB = require("./config/db");
+
 const winston = require('./config/winston');
 
 const expressLayout = require('express-ejs-layouts');
+
 
 const blogRoutes =require('./routes/blog');
 const path = require('path');
@@ -45,6 +51,7 @@ const dotEnv = require("dotenv");
 const dashRoutes = require('./routes/dashboard');
 connectDB();
 debug("connected to mongo😁")
+
 //! load config
 dotEnv.config({ path: "./config/config.env" });
 

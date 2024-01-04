@@ -8,6 +8,7 @@ const multer = require("multer");
 // const uuid = require('uuid').v4;✖
 const shortId = require('shortid');/*✔*/
 const sharp = require('sharp');
+const appRoute = require('app-root-path');
 
 exports.getDashboard = async (req, res) => {
     const page = +req.query.page || 1
