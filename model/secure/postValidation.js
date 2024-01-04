@@ -12,7 +12,7 @@ exports.schema = Yup.object().shape({
     ),
     thumbnail:Yup.object().shape({
         name:Yup.string().required("عکس بند انگشتی الزامی می باشد."),
-        size:Yup.number().max(100, "سایز عکس نباید بیش از 1 مگابایت باشد."),
-        mimetype:Yup.mixed().oneOf(["image/jpeg"], "فقط jpeg , png  پشتیبانی میشن.")
+        size:Yup.number().max(1000000, "سایز عکس نباید بیش از 1 مگابایت باشد."),
+        mimetype:Yup.mixed().oneOf(["image/jpeg","image/png"], "فقط jpeg , png  پشتیبانی میشن.")
     })
 });
