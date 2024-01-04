@@ -68,7 +68,7 @@ exports.createPost = async (req, res) => {
         await Blog.postValidation(req.body); /* اول اعتبار سنجی میکنه که از إBlog.js آمده اند. */
 
        // minimize file size
-       await sharp(thumbnail.data).jpeg({quality:60}).toFile(uploadPath).catch((err)=>console.log(err))
+       await sharp(thumbnail.data).jpeg({quality:20}).toFile(uploadPath).catch((err)=>console.log(err))
 
         await Blog.create({ ...req.body, user: req.user.id, thumbnail:fileName });
         res.redirect("/dashboard");
