@@ -1,7 +1,8 @@
 const User = require('../model/User');
 const passport = require('passport');
 const bcrypt = require('bcryptjs');
-
+const { sendMail } = require('../utils/mailer');
+const jwt = require("jsonwebtoken")
 exports.login = (req, res) => {
     res.render("login", {
         pageTitle: "ورود به بخش مدیریت",
@@ -30,7 +31,7 @@ exports.rememberMe = (req, res) => {
 };
 
 exports.logout = (req, res) => {
-    req.session=null
+    req.session = null
     req.logout(function (err) {
         if (err) {
             return (err);
@@ -78,6 +79,8 @@ exports.createUser = async (req, res) => {
             email,
             password
         })
+        //* send welcome email👌
+        sendMail(email, fullname, "خوش آمدی به وبلاگ خودت❤", "خوشحالیم که به جمع ما وبلاگرها خوش آمدی😍")
         req.flash("success_msg", "ثبت نام موفقیت آمیز بود😍")
         res.redirect("/users/login")
 
@@ -97,3 +100,81 @@ exports.createUser = async (req, res) => {
         })
     }
 }
+
+exports.forgetPassword=async (req, res) => {
+    res.render("forgetPass",{
+        pageTitle:"فراموشی رمز عبور",
+        path:'/login',
+        message:req.flash("success_msg"),
+        error: req.flash("error")
+    })
+}
+
+
+exports.handleForgetPassword = async (req, res) => {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+        req.flash("error", "کاربری با این ایمیل در پایگاه داده ثبت نیست");
+
+        return res.render("forgetPass", {
+            pageTitle: "فراموشی رمز عبور",
+            path: "/login",
+            message: req.flash("success_msg"),
+            error: req.flash("error"),
+        });
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+    });
+    const resetLink = `http://localhost:2000/users/reset-password/${token}`;
+
+    sendMail(
+        user.email,
+        user.fullname,
+        "فراموشی رمز عبور",
+        `
+        برای تغییر رمز عبور فعلی، روی لینک زیر کلیک بفرمایید🌹 </br>
+
+        <a href="${resetLink}">لینک تغییر رمز عبور</a>
+    `
+    );
+
+    req.flash("success_msg", "ایمیل حاوی لینک با موفقیت ارسال شد");
+
+    res.render("forgetPass", {
+        pageTitle: "فراموشی رمز عبور",
+        path: "/login",
+        message: req.flash("success_msg"),
+        error: req.flash("error"),
+    });
+};
+
+
+
+exports.resetPassword = async (req, res) => {
+    const token = req.params.token;
+
+    let decodedToken;
+
+    try {
+        decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        console.log(decodedToken);
+    } catch (err) {
+        console.log(err);
+        if (!decodedToken) {
+            return res.redirect("/404");
+        }
+    }
+
+    res.render("resetPass", {
+        pageTitle: "تغییر پسورد",
+        path: "/login",
+        message: req.flash("success_msg"),
+        error: req.flash("error"),
+        userId: decodedToken.userId,
+    });
+};
