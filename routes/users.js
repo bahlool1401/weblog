@@ -24,18 +24,6 @@ router.get("/logout",userController.logout );
 //  @route  GET /users/register
 router.get("/register", userController.register);
 
-// forget password******
-router.get("/forget-password", userController.forgetPassword);
-
-// handle forget password****
-router.post("/forget-password", userController.handleForgetPassword);
-
-
-// get reset passWord*******
-// router.get("/reset-password/:token",userController.resetPassword)
-
-router.get("/reset-password/:token", userController.resetPassword);
-
 //  @desc   Register Handle
 //  @route  POST /users/register
 router.post("/register",userController.createUser );

@@ -10,7 +10,4 @@ router.get("/",blogController.getIndex)
 router.get("/post/:id",blogController.getSinglePost)
 
 
-
-
-
 module.exports = router
