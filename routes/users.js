@@ -36,6 +36,9 @@ router.post("/forget-password", userController.handleForgetPassword);
 
 router.get("/reset-password/:token", userController.resetPassword);
 
+
+router.post("/reset-password/:id", userController.handleResetPassword);
+
 //  @desc   Register Handle
 //  @route  POST /users/register
 router.post("/register",userController.createUser );
