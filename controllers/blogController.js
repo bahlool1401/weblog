@@ -1,7 +1,8 @@
 const Blog = require('../model/Blog');
 const {formatDate} = require('../utils/jalali');
 const {truncate}=require('../utils/helpers');
-
+const { sendMail } = require("../utils/mailer");
+const Yup = require("yup")
 exports.getIndex = async(req,res)=>{
     const page = +req.query.page || 1;
     const postPerPage = 5;
@@ -50,9 +51,12 @@ exports.getSinglePost = async (req, res) => {
             path: "/post",
             post,
             formatDate,
+            fullname
         });
     } catch (err) {
         console.log(err);
         res.render("errors/500");
     }
 };
+
+
