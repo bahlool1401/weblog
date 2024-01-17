@@ -1,12 +1,12 @@
 const Blog = require('../model/Blog');
-const {formatDate} = require('../utils/jalali');
-const {truncate}=require('../utils/helpers');
+const { formatDate } = require('../utils/jalali');
+const { truncate } = require('../utils/helpers');
 const { sendMail } = require("../utils/mailer");
 const Yup = require("yup")
 const captchapng = require("captchapng");
 let CAPTCHA_NUM;
 
-exports.getIndex = async(req,res)=>{
+exports.getIndex = async (req, res) => {
     const page = +req.query.page || 1;
     const postPerPage = 5;
 
@@ -15,16 +15,16 @@ exports.getIndex = async(req,res)=>{
             status: "public",
         }).countDocuments();
 
-        const posts=await Blog.find({
-            status:"public"
+        const posts = await Blog.find({
+            status: "public"
         }).sort({
-            createdAt:"desc"
+            createdAt: "desc"
         }).skip((page - 1) * postPerPage)
-        .limit(postPerPage);
+            .limit(postPerPage);
 
-        res.render("index",{
-            pageTitle:"وبلاگ",
-            path:'/',
+        res.render("index", {
+            pageTitle: "وبلاگ",
+            path: '/',
             posts,
             formatDate,
             truncate,
@@ -88,17 +88,25 @@ exports.handleContactPage = async (req, res) => {
     try {
         await schema.validate(req.body, { abortEarly: false });
 
-        //TODO Captcha Validation
+        if (parseInt(captcha) === CAPTCHA_NUM) {
+            sendMail(
+                email,
+                fullname,
+                "پیام از طرف وبلاگ",
+                `${message} <br/> ایمیل کاربر : ${email}`
+            );
 
-        sendMail(
-            email,
-            fullname,
-            "پیام از طرف وبلاگ",
-            `${message} <br/> ایمیل کاربر : ${email}`
-        );
+            req.flash("success_msg", "پیام شما با موفقیت ارسال شد");
 
-        req.flash("success_msg", "پیام شما با موفقیت ارسال شد");
-
+            return res.render("contact", {
+                pageTitle: "تماس با ما",
+                path: "/contact",
+                message: req.flash("success_msg"),
+                error: req.flash("error"),
+                errors: errorArr,
+            });
+        }
+        req.flash("error", "کد امنیتی را درست وارد نکردی.🤢")
         res.render("contact", {
             pageTitle: "تماس با ما",
             path: "/contact",
@@ -106,6 +114,7 @@ exports.handleContactPage = async (req, res) => {
             error: req.flash("error"),
             errors: errorArr,
         });
+
     } catch (err) {
         err.inner.forEach((e) => {
             errorArr.push({
@@ -121,15 +130,17 @@ exports.handleContactPage = async (req, res) => {
             errors: errorArr,
         });
     }
-};
+}
 
-exports.getCaptcha=(req,res)=>{
-    CAPTCHA_NUM= parseInt(Math.random()*9000 + 1000)
-    const p = new captchapng(80,30,CAPTCHA_NUM);
-    p.color=(0,0,0,0);
-    p.color(80,80,80,255);
+exports.getCaptcha = (req, res) => {
+    CAPTCHA_NUM = parseInt(Math.random() * 9000 + 1000)
+    const p = new captchapng(80, 30, CAPTCHA_NUM);
+    console.log("🚀 ~ p:", p)
+    p.color(0, 0, 0, 0);
+    p.color(80, 80, 80, 255);
+
     const img = p.getBase64();
-    const imgBase64= Buffer.from(img,"base64");
+    const imgBase64 = Buffer.from(img, "base64");
     res.send(imgBase64)
 }
 

@@ -1,13 +1,13 @@
 <%- include('./includes/navbar.ejs') %>
 <div class="container mt-5">
-    <div class="bg-light">
+    <div class="bg-light mt-5">
         <div class="w-25 text-center mx-auto">
             <%- include("./includes/loginMessages.ejs") %> <%-
             include("./includes/validationErrors.ejs") %>
         </div>
         <form class="mx-auto w-50" action="/contact" method="post">
             <fieldset>
-                <legend class="text-center">تماس با ما</legend>
+                <legend class="text-center mt-5">تماس با ما</legend>
 
                 <div class="form-group">
                     <label class="col-md-3 control-label" for="name"
