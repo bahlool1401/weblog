@@ -12,36 +12,36 @@ const appRoot = require("app-root-path")
 
 const fs =
 
-exports.getDashboard = async (req, res) => {
-    const page = +req.query.page || 1
-    const postPerPage = 2
-    try {
-        const numberOfPost = await Blog.find({
-            user:req.user._id
-        }).countDocuments()
+    exports.getDashboard = async (req, res) => {
+        const page = +req.query.page || 1
+        const postPerPage = 2
+        try {
+            const numberOfPost = await Blog.find({
+                user: req.user._id
+            }).countDocuments()
 
-        const blogs = await Blog.find({ user: req.user.id }).skip((page - 1) * postPerPage).limit(postPerPage)
+            const blogs = await Blog.find({ user: req.user.id }).skip((page - 1) * postPerPage).limit(postPerPage)
 
-        res.render("private/blogs", {
-            pageTitle: "داشبورد |  بخش مدیریت",
-            path: "/dashboard",
-            layout: "./layouts/dashLayout",
-            fullname: req.user.fullname,
-            blogs,
-            formatDate,
-            currentPage:page,
-            nextPage:page + 1,
-            previousPage:page - 1,
-            hasNextPage:postPerPage * page < numberOfPost,
-            hasPreviousPage:page>1 ,
-            lastPage:Math.ceil(numberOfPost/postPerPage)
-        })
-    } catch (err) {
-        console.log(err)
-        get500(req, res)
+            res.render("private/blogs", {
+                pageTitle: "داشبورد |  بخش مدیریت",
+                path: "/dashboard",
+                layout: "./layouts/dashLayout",
+                fullname: req.user.fullname,
+                blogs,
+                formatDate,
+                currentPage: page,
+                nextPage: page + 1,
+                previousPage: page - 1,
+                hasNextPage: postPerPage * page < numberOfPost,
+                hasPreviousPage: page > 1,
+                lastPage: Math.ceil(numberOfPost / postPerPage)
+            })
+        } catch (err) {
+            console.log(err)
+            get500(req, res)
+        }
+
     }
-
-}
 
 exports.getAddPost = (req, res) => {
     res.render("private/addPost", {
@@ -56,7 +56,7 @@ exports.getAddPost = (req, res) => {
 exports.createPost = async (req, res) => {
     const errorArr = [];
 
-    const thumbnail = req.files? req.files.thumbnail:{}
+    const thumbnail = req.files ? req.files.thumbnail : {}
     const fileName = `${shortId.generate()}_${thumbnail.name}`
     const uploadPath = `${appRoot}/public/uploads/thumbnails/${fileName}`
     console.log("thumbnail :", thumbnail)
@@ -64,15 +64,15 @@ exports.createPost = async (req, res) => {
 
     try {
         //add thumnail to req.body
-        req.body = {...req.body,thumbnail}
+        req.body = { ...req.body, thumbnail }
         console.log(req.body)
 
         await Blog.postValidation(req.body); /* اول اعتبار سنجی میکنه که از إBlog.js آمده اند. */
 
-       // minimize file size
-       await sharp(thumbnail.data).jpeg({quality:20}).toFile(uploadPath).catch((err)=>console.log(err))
+        // minimize file size
+        await sharp(thumbnail.data).jpeg({ quality: 20 }).toFile(uploadPath).catch((err) => console.log(err))
 
-        await Blog.create({ ...req.body, user: req.user.id, thumbnail:fileName });
+        await Blog.create({ ...req.body, user: req.user.id, thumbnail: fileName });
         res.redirect("/dashboard");
     } catch (err) {
         console.log(err);
@@ -186,7 +186,7 @@ exports.uploadImage = (req, res) => {
                 const fileName = `${shortId.generate()}_${req.file.originalname}`;
                 console.log("🚀 ~ upload ~ fileName:", fileName)
                 await sharp({})
-                    .jpeg({quality: 40})
+                    .jpeg({ quality: 40 })
                     .toFile(`./public/${fileName}`)
                     .catch((err) => console.log(err));
                 res.status(200).send(
@@ -195,5 +195,40 @@ exports.uploadImage = (req, res) => {
                 res.send("جهت آپلود باید عکسی انتخاب کنید");
             }
         }
-    }); 
+    });
 };
+
+exports.handleDashSearch = async (req, res) => {
+    const page = +req.query.page || 1
+    const postPerPage = 2
+    try {
+        const numberOfPost = await Blog.find({
+            user: req.user._id,
+            $text: { $search: req.body.search }
+        }).countDocuments()
+
+        const blogs = await Blog.find({
+            user: req.user.id, 
+            $text: { $search: req.body.search }
+        })
+            .skip((page - 1) * postPerPage).limit(postPerPage)
+
+        res.render("private/blogs", {
+            pageTitle: "داشبورد |  بخش مدیریت",
+            path: "/dashboard",
+            layout: "./layouts/dashLayout",
+            fullname: req.user.fullname,
+            blogs,
+            formatDate,
+            currentPage: page,
+            nextPage: page + 1,
+            previousPage: page - 1,
+            hasNextPage: postPerPage * page < numberOfPost,
+            hasPreviousPage: page > 1,
+            lastPage: Math.ceil(numberOfPost / postPerPage)
+        })
+    } catch (err) {
+        console.log(err)
+        get500(req, res)
+    }
+}

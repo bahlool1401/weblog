@@ -17,5 +17,8 @@ router.get("/captcha.png",blogController.getCaptcha)
 router.post("/contact",blogController.handleContactPage)
 
 
+router.post("/search",blogController.handleSearch)
+
+
 
 module.exports = router

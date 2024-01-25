@@ -31,6 +31,8 @@ const blogSchmea = new mongoose.Schema({
     },
 });
 
+blogSchmea.index({title:"text"})
+
 blogSchmea.statics.postValidation = function (body) {
     return schema.validate(body, { abortEarly: false });
 };

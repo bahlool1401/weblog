@@ -21,4 +21,7 @@ router.get("/delete-post/:id", authenticate, adminController.deletePost);
 router.post('/image-upload', authenticate, adminController.uploadImage)
 
 
+router.post('/search', authenticate, adminController.handleDashSearch)
+
+
 module.exports = router
