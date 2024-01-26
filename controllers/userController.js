@@ -101,11 +101,11 @@ exports.createUser = async (req, res) => {
     }
 }
 
-exports.forgetPassword=async (req, res) => {
-    res.render("forgetPass",{
-        pageTitle:"فراموشی رمز عبور",
-        path:'/login',
-        message:req.flash("success_msg"),
+exports.forgetPassword = async (req, res) => {
+    res.render("forgetPass", {
+        pageTitle: "فراموشی رمز عبور",
+        path: '/login',
+        message: req.flash("success_msg"),
         error: req.flash("error")
     })
 }
@@ -162,11 +162,11 @@ exports.resetPassword = async (req, res) => {
 
     try {
         decodedToken = jwt.verify(token, process.env.JWT_SECRET
-           /* {complete:true    /*it can be or not (describe more iform) }*/
-           );
-        console.log('decodedToken :',decodedToken);
+            /* {complete:true    /*it can be or not (describe more iform) }*/
+        );
+        console.log('decodedToken :', decodedToken);
     } catch (err) {
-        console.log('can`t decoding🤢',err);
+        console.log('can`t decoding🤢', err);
         if (!decodedToken) {
             return res.redirect("/404");
         }

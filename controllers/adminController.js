@@ -208,7 +208,7 @@ exports.handleDashSearch = async (req, res) => {
         }).countDocuments()
 
         const blogs = await Blog.find({
-            user: req.user.id, 
+            user: req.user.id,
             $text: { $search: req.body.search }
         })
             .skip((page - 1) * postPerPage).limit(postPerPage)
