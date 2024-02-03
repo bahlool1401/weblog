@@ -91,6 +91,7 @@ exports.createPost = async (req, res) => {
         });
     }
 };
+
 exports.getEditPost = async (req, res) => {
     const post = await Blog.findOne({
         _id: req.params.id,

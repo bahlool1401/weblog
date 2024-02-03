@@ -14,7 +14,6 @@ exports.login = (req, res) => {
 
 exports.handleLogin = (req, res, next) => {
     passport.authenticate('local', {
-        // successRedirect: "/dashboard",
         failureRedirect: "/users/login",
         failureFlash: true
     })(req, res, next)
@@ -185,6 +184,7 @@ exports.resetPassword = async (req, res) => {
 exports.handleResetPassword = async (req, res) => {
     const { password, confirmPassword } = req.body;
     console.log(password, confirmPassword);
+
 
     if (password !== confirmPassword) {
         req.flash("error", "کلمه های عبور یاکسان نیستند");

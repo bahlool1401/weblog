@@ -6,6 +6,7 @@ const passport = require('passport');
 const morgan =require('morgan');
 const app =express()
 // const bodyParser = require('body-parser');
+
 const flash = require('connect-flash');
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
