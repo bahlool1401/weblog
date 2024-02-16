@@ -41,9 +41,9 @@ app.use(flash())
 // const connectDB= require('./config/db');
 const connectDB = require("./config/db");
 
-const winston = require('./config/winston');
+// const winston = require('./config/winston');
 
-const expressLayout = require('express-ejs-layouts');
+// const expressLayout = require('express-ejs-layouts');
 
 
 const blogRoutes =require('./routes/blog');
@@ -51,7 +51,7 @@ const path = require('path');
 const dotEnv = require("dotenv");
 const dashRoutes = require('./routes/dashboard');
 connectDB();
-debug("connected to mongo😁")
+// debug("connected to mongo😁")
 
 //! load config
 dotEnv.config({ path: "./config/config.env" });
@@ -60,10 +60,10 @@ dotEnv.config({ path: "./config/config.env" });
 require('./config/passport');
 
 //*view engine
-app.use(expressLayout)
-app.set('view engine','ejs')
-app.set("layout","./layouts/mainLayout.ejs")
-app.set('views','views')
+// app.use(expressLayout)
+// app.set('view engine','ejs')
+// app.set("layout","./layouts/mainLayout.ejs")
+// app.set('views','views')
 
 
 //*static folder
@@ -81,15 +81,15 @@ app.use('/users',require('./routes/users'));
 
 
 //! 404 page
-app.use(require('./controllers/errorController').get404);
+// app.use(require('./controllers/errorController').get404);
 
 
 const PORT = process.env.PORT || 5000
 
 //! logging 
-if(process.env.NODE_ENV==='development'){
-    debug("morgan enabled😊")
-    app.use(morgan("combined", { stream: winston.stream }))
-}
+// if(process.env.NODE_ENV==='development'){
+//     debug("morgan enabled😊")
+//     app.use(morgan("combined", { stream: winston.stream }))
+// }
 
 app.listen(PORT, ()=>console.log(`server is running in ${process.env.NODE_ENV} mode on port ${PORT}`))
