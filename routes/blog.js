@@ -9,7 +9,7 @@ router.get("/",blogController.getIndex)
 
 router.get("/post/:id",blogController.getSinglePost)
 
-router.get("/contact",blogController.getContactPage)
+// router.get("/contact",blogController.getContactPage)
 
 
 router.get("/captcha.png",blogController.getCaptcha)
@@ -17,7 +17,7 @@ router.get("/captcha.png",blogController.getCaptcha)
 router.post("/contact",blogController.handleContactPage)
 
 
-router.post("/search",blogController.handleSearch)
+// router.post("/search",blogController.handleSearch)
 
 
 

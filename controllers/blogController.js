@@ -1,14 +1,14 @@
 const Blog = require('../model/Blog');
-const { formatDate } = require('../utils/jalali');
-const { truncate } = require('../utils/helpers');
+// const { formatDate } = require('../utils/jalali');
+// const { truncate } = require('../utils/helpers');
 const { sendMail } = require("../utils/mailer");
 const Yup = require("yup")
 const captchapng = require("captchapng");
 let CAPTCHA_NUM;
 
 exports.getIndex = async (req, res) => {
-    const page = +req.query.page || 1;
-    const postPerPage = 5;
+    // const page = +req.query.page || 1;
+    // const postPerPage = 5;
 
     try {
         const numberOfPosts = await Blog.find({
@@ -19,25 +19,12 @@ exports.getIndex = async (req, res) => {
             status: "public"
         }).sort({
             createdAt: "desc"
-        }).skip((page - 1) * postPerPage)
-            .limit(postPerPage);
-
-        res.render("index", {
-            pageTitle: "وبلاگ",
-            path: '/',
-            posts,
-            formatDate,
-            truncate,
-            currentPage: page,
-            nextPage: page + 1,
-            previousPage: page - 1,
-            hasNextPage: postPerPage * page < numberOfPosts,
-            hasPreviousPage: page > 1,
-            lastPage: Math.ceil(numberOfPosts / postPerPage),
         })
+       
+        res.status(200).json({posts,total:numberOfPosts})
     } catch (err) {
         console.log(err)
-        res.render("errors/500")
+        res.status(400).json({error:err})
     }
 }
 
@@ -47,35 +34,29 @@ exports.getSinglePost = async (req, res) => {
             "user"
         );
 
-        if (!post) return res.redirect("errors/404");
+        if (!post) return res.status(404).json({message:"not found😢"});
 
-        res.render("post", {
-            pageTitle: post.title,
-            path: "/post",
-            post,
-            formatDate,
-            fullname
-        });
+        res.status(200).json({post})
     } catch (err) {
         console.log(err);
-        res.render("errors/500");
+        res.status(400).json({error:err})
     }
 };
 
-exports.getContactPage = (req, res) => {
-    res.render("contact", {
-        pageTitle: "تماس با ما",
-        path: "/contact",
-        message: req.flash("success_msg"),
-        error: req.flash("error"),
-        errors: [],
-    });
-};
+// exports.getContactPage = (req, res) => {
+//     res.render("contact", {
+//         pageTitle: "تماس با ما",
+//         path: "/contact",
+//         message: req.flash("success_msg"),
+//         error: req.flash("error"),
+//         errors: [],
+//     });
+// };
 
 exports.handleContactPage = async (req, res) => {
     const errorArr = [];
 
-    const { fullname, email, message, captcha } = req.body;
+    const { fullname, email, message } = req.body;
 
     const schema = Yup.object().shape({
         fullname: Yup.string().required("نام و نام خانوادگی الزامی می باشد"),
@@ -88,7 +69,7 @@ exports.handleContactPage = async (req, res) => {
     try {
         await schema.validate(req.body, { abortEarly: false });
 
-        if (parseInt(captcha) === CAPTCHA_NUM) {
+        // if (parseInt(captcha) === CAPTCHA_NUM) {
             sendMail(
                 email,
                 fullname,
@@ -96,24 +77,8 @@ exports.handleContactPage = async (req, res) => {
                 `${message} <br/> ایمیل کاربر : ${email}`
             );
 
-            req.flash("success_msg", "پیام شما با موفقیت ارسال شد");
-
-            return res.render("contact", {
-                pageTitle: "تماس با ما",
-                path: "/contact",
-                message: req.flash("success_msg"),
-                error: req.flash("error"),
-                errors: errorArr,
-            });
-        }
-        req.flash("error", "کد امنیتی را درست وارد نکردی.🤢")
-        res.render("contact", {
-            pageTitle: "تماس با ما",
-            path: "/contact",
-            message: req.flash("success_msg"),
-            error: req.flash("error"),
-            errors: errorArr,
-        });
+            
+        res.status(200).json({message:"پیام شما با موفقیت ارسال شد😍."})
 
     } catch (err) {
         err.inner.forEach((e) => {
@@ -122,13 +87,7 @@ exports.handleContactPage = async (req, res) => {
                 message: e.message,
             });
         });
-        res.render("contact", {
-            pageTitle: "تماس با ما",
-            path: "/contact",
-            message: req.flash("success_msg"),
-            error: req.flash("error"),
-            errors: errorArr,
-        });
+       res.status(422).json({error:errorArr})
     }
 }
 
@@ -144,44 +103,44 @@ exports.getCaptcha = (req, res) => {
     res.send(imgBase64)
 }
 
-exports.handleSearch = async (req, res) => {
-    const page = +req.query.page || 1;
-    const postPerPage = 5;
+// exports.handleSearch = async (req, res) => {
+//     const page = +req.query.page || 1;
+//     const postPerPage = 5;
 
-    try {
-        const numberOfPosts = await Blog.find({
-            status: "public",
-            $text: { $search: req.body.search }
-        }).countDocuments();
+//     try {
+//         const numberOfPosts = await Blog.find({
+//             status: "public",
+//             $text: { $search: req.body.search }
+//         }).countDocuments();
 
-        const posts = await Blog.find({
-            status: "public",
-            $text: { $search: req.body.search }
-        }).sort({
-            createdAt: "desc"
-        }).skip((page - 1) * postPerPage)
-            .limit(postPerPage);
+//         const posts = await Blog.find({
+//             status: "public",
+//             $text: { $search: req.body.search }
+//         }).sort({
+//             createdAt: "desc"
+//         }).skip((page - 1) * postPerPage)
+//             .limit(postPerPage);
 
-        res.render("index", {
-            pageTitle: "نتیجه جستجوی شما",
-            path: '/',
-            posts,
-            formatDate,
-            truncate,
-            currentPage: page,
-            nextPage: page + 1,
-            previousPage: page - 1,
-            hasNextPage: postPerPage * page < numberOfPosts,
-            hasPreviousPage: page > 1,
-            lastPage: Math.ceil(numberOfPosts / postPerPage),
-        })
-    } catch (err) {
-        console.log(err)
-        res.render("errors/500", {
-            pageTitle: "خطای سرور | خطای 500",
-            path: "/404"
-        })
-    }
-}
+//         res.render("index", {
+//             pageTitle: "نتیجه جستجوی شما",
+//             path: '/',
+//             posts,
+//             formatDate,
+//             truncate,
+//             currentPage: page,
+//             nextPage: page + 1,
+//             previousPage: page - 1,
+//             hasNextPage: postPerPage * page < numberOfPosts,
+//             hasPreviousPage: page > 1,
+//             lastPage: Math.ceil(numberOfPosts / postPerPage),
+//         })
+//     } catch (err) {
+//         console.log(err)
+//         res.render("errors/500", {
+//             pageTitle: "خطای سرور | خطای 500",
+//             path: "/404"
+//         })
+//     }
+// }
 
 
